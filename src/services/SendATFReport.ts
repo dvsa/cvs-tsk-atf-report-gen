@@ -45,6 +45,8 @@ class SendATFReport {
     // VTM allows blank email addresses on a test-station record so check before sending
     if (response[0].testStationEmails && response[0].testStationEmails.length > 0) {
       await this.notifyService.sendNotification(sendNotificationData, response[0].testStationEmails);
+    } else {
+      console.log(`No email address exists for test station PNumber ${visit.testStationPNumber}`);
     }
     await this.notifyService.sendNotification(sendNotificationData, [visit.testerEmail]);
     return report;
