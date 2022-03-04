@@ -86,6 +86,26 @@ describe("sendATFReport", () => {
       });
     });
 
+    context("When the ATF email address is blank", () => {
+      it("should continue processing and log a message", () => {
+        const sendATFReport: SendATFReport = new SendATFReport();
+        sendATFReport.notifyService = new NotificationService(new NotifyClient());
+        sendATFReport.notifyService.sendNotification = jest.fn().mockRejectedValue(new Error("No email address exists"));
+        sendATFReport.s3BucketService.upload = jest.fn().mockResolvedValue("ok");
+        sendATFReport.testStationsService.getTestStationEmail = jest.fn().mockResolvedValue([
+          {
+            testStationPNumber: "09-4129632",
+            testStationEmails: [],
+            testStationId: "9",
+          },
+        ]);
+        expect.assertions(1);
+        return sendATFReport.sendATFReport(generationServiceResponse, visit).catch((error: any) => {
+          expect(error.message).toEqual("No email address exists");
+        });
+      });
+    });
+
     context("When services succeed", () => {
       it("should return success and details of storage", () => {
         const sendATFReport: SendATFReport = new SendATFReport();
