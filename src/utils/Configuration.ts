@@ -14,7 +14,7 @@ class Configuration {
   private secretsClient: SecretsManager;
   private readonly secretPath = "../config/secrets.yml";
 
-  private constructor(configPath: string) {
+  constructor(configPath: string) {
     this.secretsClient = AWSXRay.captureAWSClient(new SecretsManager({ region: "eu-west-1" }));
     this.config = yml.readSync(configPath);
 
