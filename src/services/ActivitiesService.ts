@@ -37,6 +37,8 @@ class ActivitiesService {
     }
 
     return this.lambdaClient.invoke(invokeParams).then((response: PromiseResult<Lambda.Types.InvocationResponse, AWSError>) => {
+      console.log(`These were the invoke params for get-activities call - ${JSON.stringify(invokeParams)}`);
+      console.log(`Payload returned from get-activities call: ${JSON.stringify(response)}`);
       const payload: any = this.lambdaClient.validateInvocationResponse(response); // Response validation
       const activityResults: any[] = JSON.parse(payload.body); // Response conversion
       console.log(`Wait Activities: ${activityResults.length}`);

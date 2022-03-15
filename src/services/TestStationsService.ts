@@ -34,6 +34,8 @@ class TestStationsService {
     return this.lambdaClient
       .invoke(invokeParams)
       .then((response: Lambda.Types.InvocationResponse) => {
+        console.log(`These were the invoke params for test-stations call - ${JSON.stringify(invokeParams)}`);
+        console.log(`Payload returned from test-stations call: ${JSON.stringify(response)}`);
         const payload: any = this.lambdaClient.validateInvocationResponse(response); // Response validation
         return JSON.parse(payload.body); // Response conversion
       })

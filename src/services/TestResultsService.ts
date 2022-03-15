@@ -32,6 +32,8 @@ class TestResultsService {
     };
 
     return this.lambdaClient.invoke(invokeParams).then((response: PromiseResult<Lambda.Types.InvocationResponse, AWSError>) => {
+      console.log(`These were the invoke params for get test-results call - ${JSON.stringify(invokeParams)}`);
+      console.log(`Payload returned from get test-results call: ${JSON.stringify(response)}`);
       const payload: any = this.lambdaClient.validateInvocationResponse(response); // Response validation
       const testResults: any[] = JSON.parse(payload.body); // Response conversion
 
