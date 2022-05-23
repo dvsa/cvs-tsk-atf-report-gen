@@ -9,7 +9,6 @@ import { NotificationData } from "../utils/generateNotificationData";
 import { NotificationService } from "./NotificationService";
 import { S3BucketService } from "./S3BucketService";
 import { TestStationsService } from "./TestStationsService";
-import { ManagedUpload } from "aws-sdk/clients/s3";
 
 class SendATFReport {
   public s3BucketService: S3BucketService;
@@ -30,7 +29,6 @@ class SendATFReport {
    * @param visit - Data about the current visit
    */
   public async sendATFReport(generationServiceResponse: any, visit: any): Promise<any> {
-    // const report = await this.s3BucketService.upload(`cvs-atf-reports-${process.env.BUCKET}`, generationServiceResponse.fileName, generationServiceResponse.fileBuffer);
     // Add testResults and waitActivities in a common list and sort it by startTime
     const activitiesList = this.computeActivitiesList(generationServiceResponse.testResults, generationServiceResponse.waitActivities);
 

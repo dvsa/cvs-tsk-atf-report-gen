@@ -1,7 +1,6 @@
 import { AWSError, Lambda } from "aws-sdk";
 import { Callback, Context, Handler } from "aws-lambda";
 import { ManagedUpload } from "aws-sdk/clients/s3";
-
 import { ActivitiesService } from "../services/ActivitiesService";
 import { ERRORS } from "../assets/enum";
 import { ReportGenerationService } from "../services/ReportGenerationService";
