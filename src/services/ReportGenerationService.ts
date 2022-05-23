@@ -1,5 +1,5 @@
 import { IActivity } from "../models";
-import * as Excel from "exceljs";
+// import * as Excel from "exceljs";
 import * as path from "path";
 import { TestResultsService } from "./TestResultsService";
 import { ACTIVITY_TYPE, ERRORS, STATUSES, TIMEZONE, VEHICLE_TYPES } from "../assets/enum";
@@ -102,89 +102,89 @@ class ReportGenerationService {
    * @param totalActivities - the total number of activities that will be displayed.
    * this is used for determining how many rows the table will have
    */
-  public fetchATFTemplate(totalActivities: number) {
-    const workbook = new Excel.Workbook();
-    return workbook.xlsx.readFile(path.resolve(__dirname, "../resources/atf_report_template.xlsx")).then((template: Excel.Workbook) => {
-      // Index starts at 1
-      const reportSheet: Excel.Worksheet = template.getWorksheet(1);
-
-      // Change file metadata
-      template.creator = "Commercial Vehicles Services Beta Team";
-      // @ts-ignore
-      template.company = "Drivers and Vehicles Standards Agency";
-      reportSheet.name = "ATF Report";
-      delete template.lastModifiedBy;
-
-      // Map values
-      const atfReportTemplate: any = {
-        siteVisitDetails: {
-          assesor: reportSheet.getCell("D10"),
-          siteName: reportSheet.getCell("G10"),
-          siteNumber: reportSheet.getCell("G11"),
-          date: reportSheet.getCell("D11"),
-          startTime: reportSheet.getCell("D12"),
-        },
-        declaration: {
-          date: reportSheet.getCell("D17"),
-          finishTime: reportSheet.getCell("G17"),
-        },
-        activityDetails: Array.from({ length: totalActivities }, (v, k) => {
-          return {
-            activity: reportSheet.getCell(`C${25 + k}`),
-            startTime: reportSheet.getCell(`D${25 + k}`),
-            finishTime: reportSheet.getCell(`E${25 + k}`),
-            vrm: reportSheet.getCell(`F${25 + k}`),
-            testDescription: reportSheet.getCell(`G${25 + k}`),
-            seatsAndAxles: reportSheet.getCell(`H${25 + k}`),
-            result: reportSheet.getCell(`I${25 + k}`),
-            certificateNumber: reportSheet.getCell(`J${25 + k}`),
-            expiryDate: reportSheet.getCell(`K${25 + k}`),
-          };
-        }),
-      };
-
-      reportSheet.getCell("C20").value = {
-        richText: [
-          { font: { bold: true }, text: "Data Protection" },
-          { text: "\nThe information provided on this form will be used for the purposes of DVSA statutory functions. " },
-          { text: "It will not be disclosed to other organisations unless required or permitted by law. " },
-          { text: "For further information, visit our charter information available from DVSA website www.gov.uk/dvsa" },
-        ],
-      };
-
-      // Fix styling
-      reportSheet.getImages().forEach((img: any) => {
-        img.range.tl = { col: 2, row: 1 };
-        img.range.br = { col: 3.00001, row: 8 };
-      });
-
-      reportSheet.getCell("D16").border = {
-        right: { style: "medium" },
-        left: { style: "medium" },
-        top: { style: "medium" },
-        bottom: { style: "medium" },
-      };
-
-      Object.values(atfReportTemplate.siteVisitDetails).forEach((cell: any) => {
-        this.addCellStyle(cell);
-      });
-
-      Object.values(atfReportTemplate.declaration).forEach((cell: any) => {
-        this.addCellStyle(cell);
-      });
-
-      atfReportTemplate.activityDetails.forEach((detailsTemplate: any) => {
-        Object.values(detailsTemplate).forEach((cell: any) => {
-          this.addCellStyle(cell);
-        });
-      });
-
-      return {
-        workbook,
-        reportTemplate: atfReportTemplate,
-      };
-    });
-  }
+  // public fetchATFTemplate(totalActivities: number) {
+  //   const workbook = new Excel.Workbook();
+  //   return workbook.xlsx.readFile(path.resolve(__dirname, "../resources/atf_report_template.xlsx")).then((template: Excel.Workbook) => {
+  //     // Index starts at 1
+  //     const reportSheet: Excel.Worksheet = template.getWorksheet(1);
+  //
+  //     // Change file metadata
+  //     template.creator = "Commercial Vehicles Services Beta Team";
+  //     // @ts-ignore
+  //     template.company = "Drivers and Vehicles Standards Agency";
+  //     reportSheet.name = "ATF Report";
+  //     delete template.lastModifiedBy;
+  //
+  //     // Map values
+  //     const atfReportTemplate: any = {
+  //       siteVisitDetails: {
+  //         assesor: reportSheet.getCell("D10"),
+  //         siteName: reportSheet.getCell("G10"),
+  //         siteNumber: reportSheet.getCell("G11"),
+  //         date: reportSheet.getCell("D11"),
+  //         startTime: reportSheet.getCell("D12"),
+  //       },
+  //       declaration: {
+  //         date: reportSheet.getCell("D17"),
+  //         finishTime: reportSheet.getCell("G17"),
+  //       },
+  //       activityDetails: Array.from({ length: totalActivities }, (v, k) => {
+  //         return {
+  //           activity: reportSheet.getCell(`C${25 + k}`),
+  //           startTime: reportSheet.getCell(`D${25 + k}`),
+  //           finishTime: reportSheet.getCell(`E${25 + k}`),
+  //           vrm: reportSheet.getCell(`F${25 + k}`),
+  //           testDescription: reportSheet.getCell(`G${25 + k}`),
+  //           seatsAndAxles: reportSheet.getCell(`H${25 + k}`),
+  //           result: reportSheet.getCell(`I${25 + k}`),
+  //           certificateNumber: reportSheet.getCell(`J${25 + k}`),
+  //           expiryDate: reportSheet.getCell(`K${25 + k}`),
+  //         };
+  //       }),
+  //     };
+  //
+  //     reportSheet.getCell("C20").value = {
+  //       richText: [
+  //         { font: { bold: true }, text: "Data Protection" },
+  //         { text: "\nThe information provided on this form will be used for the purposes of DVSA statutory functions. " },
+  //         { text: "It will not be disclosed to other organisations unless required or permitted by law. " },
+  //         { text: "For further information, visit our charter information available from DVSA website www.gov.uk/dvsa" },
+  //       ],
+  //     };
+  //
+  //     // Fix styling
+  //     reportSheet.getImages().forEach((img: any) => {
+  //       img.range.tl = { col: 2, row: 1 };
+  //       img.range.br = { col: 3.00001, row: 8 };
+  //     });
+  //
+  //     reportSheet.getCell("D16").border = {
+  //       right: { style: "medium" },
+  //       left: { style: "medium" },
+  //       top: { style: "medium" },
+  //       bottom: { style: "medium" },
+  //     };
+  //
+  //     Object.values(atfReportTemplate.siteVisitDetails).forEach((cell: any) => {
+  //       this.addCellStyle(cell);
+  //     });
+  //
+  //     Object.values(atfReportTemplate.declaration).forEach((cell: any) => {
+  //       this.addCellStyle(cell);
+  //     });
+  //
+  //     atfReportTemplate.activityDetails.forEach((detailsTemplate: any) => {
+  //       Object.values(detailsTemplate).forEach((cell: any) => {
+  //         this.addCellStyle(cell);
+  //       });
+  //     });
+  //
+  //     return {
+  //       workbook,
+  //       reportTemplate: atfReportTemplate,
+  //     };
+  //   });
+  // }
 
   /**
    * Adds styling to a given cell
