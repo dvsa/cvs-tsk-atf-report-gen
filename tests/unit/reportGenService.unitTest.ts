@@ -73,78 +73,78 @@ describe("ReportGenerationService", () => {
     });
   });
 
-  context("when generating a report", () => {
-    const activity: IActivity = JSON.parse(event.Records[0].body);
-
-    it("should return a valid xlsx file as buffer", () => {
-      const mockTestResultsService = jest.fn().mockImplementation(() => {
-        return {
-          getTestResults: () => {
-            return Promise.resolve(JSON.parse(testResultResponse.body));
-          },
-        };
-      });
-      const mockActivitiesService = jest.fn().mockImplementation(() => {
-        return {
-          getActivities: () => {
-            return Promise.resolve(JSON.parse(waitResponse.body));
-          },
-        };
-      });
-      const reportGenSvc = new ReportGenerationService(new mockTestResultsService(), new mockActivitiesService());
-
-      return reportGenSvc.generateATFReport(activity).then((result: any) => {
-        const workbook = new Excel.Workbook();
-        const stream = new Duplex();
-        stream.push(result.fileBuffer); // Convert the incoming file to a readable stream
-        stream.push(null);
-
-        return workbook.xlsx.read(stream).then((excelFile: any) => {
-          const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
-
-          expect(excelFile.creator).toEqual("Commercial Vehicles Services Beta Team");
-          expect(excelFile.company).toEqual("Drivers and Vehicles Standards Agency");
-          expect(reportSheet.name).toEqual("ATF Report");
-          expect(reportSheet.getCell("C24").value).toEqual("Activity");
-          // tslint:disable-next-line
-          expect(reportSheet.getCell("C25").value).not.toBeNull();
-        });
-      });
-    });
-
-    context("and testResults returns HGVs and TRLs", () => {
-      it("should return a valid xlsx file as buffer with trailerId populated for trl vehicles and noOfAxles populated for hgv and trl vehicles", async () => {
-        const mockTestResultsService = jest.fn().mockImplementation(() => {
-          return {
-            getTestResults: () => {
-              return Promise.resolve(JSON.parse(hgvTrlTestResultResponse.body));
-            },
-          };
-        });
-        const mockActivitiesService = jest.fn().mockImplementation(() => {
-          return {
-            getActivities: () => {
-              return Promise.resolve(JSON.parse(waitResponse.body));
-            },
-          };
-        });
-        const reportGenSvc = new ReportGenerationService(new mockTestResultsService(), new mockActivitiesService());
-
-        const output = await reportGenSvc.generateATFReport(activity);
-        const workbook = new Excel.Workbook();
-        const stream = new Duplex();
-        stream.push(output.fileBuffer); // Convert the incoming file to a readable stream
-        stream.push(null);
-
-        const excelFile = await workbook.xlsx.read(stream);
-        const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
-
-        expect(reportSheet.getCell("H25").value).toEqual(2);
-        expect(reportSheet.getCell("H26").value).toEqual(5);
-        expect(reportSheet.getCell("F25").value).toEqual("JY58FPP");
-        expect(reportSheet.getCell("E26").value).toEqual("10:36:33");
-        expect(reportSheet.getCell("F26").value).toEqual("12345");
-      });
-    });
-  });
+  // context("when generating a report", () => {
+  //   const activity: IActivity = JSON.parse(event.Records[0].body);
+  //
+  //   it("should return a valid xlsx file as buffer", () => {
+  //     const mockTestResultsService = jest.fn().mockImplementation(() => {
+  //       return {
+  //         getTestResults: () => {
+  //           return Promise.resolve(JSON.parse(testResultResponse.body));
+  //         },
+  //       };
+  //     });
+  //     const mockActivitiesService = jest.fn().mockImplementation(() => {
+  //       return {
+  //         getActivities: () => {
+  //           return Promise.resolve(JSON.parse(waitResponse.body));
+  //         },
+  //       };
+  //     });
+  //     const reportGenSvc = new ReportGenerationService(new mockTestResultsService(), new mockActivitiesService());
+  //
+  //     return reportGenSvc.generateATFReport(activity).then((result: any) => {
+  //       const workbook = new Excel.Workbook();
+  //       const stream = new Duplex();
+  //       stream.push(result.fileBuffer); // Convert the incoming file to a readable stream
+  //       stream.push(null);
+  //
+  //       return workbook.xlsx.read(stream).then((excelFile: any) => {
+  //         const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
+  //
+  //         expect(excelFile.creator).toEqual("Commercial Vehicles Services Beta Team");
+  //         expect(excelFile.company).toEqual("Drivers and Vehicles Standards Agency");
+  //         expect(reportSheet.name).toEqual("ATF Report");
+  //         expect(reportSheet.getCell("C24").value).toEqual("Activity");
+  //         // tslint:disable-next-line
+  //         expect(reportSheet.getCell("C25").value).not.toBeNull();
+  //       });
+  //     });
+  //   });
+  //
+  //   context("and testResults returns HGVs and TRLs", () => {
+  //     it("should return a valid xlsx file as buffer with trailerId populated for trl vehicles and noOfAxles populated for hgv and trl vehicles", async () => {
+  //       const mockTestResultsService = jest.fn().mockImplementation(() => {
+  //         return {
+  //           getTestResults: () => {
+  //             return Promise.resolve(JSON.parse(hgvTrlTestResultResponse.body));
+  //           },
+  //         };
+  //       });
+  //       const mockActivitiesService = jest.fn().mockImplementation(() => {
+  //         return {
+  //           getActivities: () => {
+  //             return Promise.resolve(JSON.parse(waitResponse.body));
+  //           },
+  //         };
+  //       });
+  //       const reportGenSvc = new ReportGenerationService(new mockTestResultsService(), new mockActivitiesService());
+  //
+  //       const output = await reportGenSvc.generateATFReport(activity);
+  //       const workbook = new Excel.Workbook();
+  //       const stream = new Duplex();
+  //       stream.push(output.fileBuffer); // Convert the incoming file to a readable stream
+  //       stream.push(null);
+  //
+  //       const excelFile = await workbook.xlsx.read(stream);
+  //       const reportSheet: Excel.Worksheet = excelFile.getWorksheet(1);
+  //
+  //       expect(reportSheet.getCell("H25").value).toEqual(2);
+  //       expect(reportSheet.getCell("H26").value).toEqual(5);
+  //       expect(reportSheet.getCell("F25").value).toEqual("JY58FPP");
+  //       expect(reportSheet.getCell("E26").value).toEqual("10:36:33");
+  //       expect(reportSheet.getCell("F26").value).toEqual("12345");
+  //     });
+  //   });
+  // });
 });

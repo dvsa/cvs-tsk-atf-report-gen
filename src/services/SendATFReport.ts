@@ -29,8 +29,8 @@ class SendATFReport {
    * @param generationServiceResponse - The response from the ATF generation service
    * @param visit - Data about the current visit
    */
-  public async sendATFReport(generationServiceResponse: any, visit: any): Promise<ManagedUpload.SendData> {
-    const report = await this.s3BucketService.upload(`cvs-atf-reports-${process.env.BUCKET}`, generationServiceResponse.fileName, generationServiceResponse.fileBuffer);
+  public async sendATFReport(generationServiceResponse: any, visit: any): Promise<any> {
+    // const report = await this.s3BucketService.upload(`cvs-atf-reports-${process.env.BUCKET}`, generationServiceResponse.fileName, generationServiceResponse.fileBuffer);
     // Add testResults and waitActivities in a common list and sort it by startTime
     const activitiesList = this.computeActivitiesList(generationServiceResponse.testResults, generationServiceResponse.waitActivities);
 
@@ -48,8 +48,7 @@ class SendATFReport {
     } else {
       console.log(`No email address exists for test station PNumber ${visit.testStationPNumber}`);
     }
-    await this.notifyService.sendNotification(sendNotificationData, [visit.testerEmail]);
-    return report;
+    return this.notifyService.sendNotification(sendNotificationData, [visit.testerEmail]);;
   }
 
   /**
