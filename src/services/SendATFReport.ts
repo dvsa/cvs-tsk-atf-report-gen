@@ -1,30 +1,27 @@
 // @ts-ignore
 import { NotifyClient } from "notifications-node-client";
-import { Lambda, S3 } from "aws-sdk";
+import { Lambda } from "aws-sdk";
 import { ACTIVITY_TYPE } from "../assets/enum";
 import { Configuration } from "../utils/Configuration";
 import { IActivitiesList, IActivity, ITestResults } from "../models";
 import { LambdaService } from "./LambdaService";
 import { NotificationData } from "../utils/generateNotificationData";
 import { NotificationService } from "./NotificationService";
-import { S3BucketService } from "./S3BucketService";
 import { TestStationsService } from "./TestStationsService";
 
 class SendATFReport {
-  public s3BucketService: S3BucketService;
   public testStationsService: TestStationsService;
   public notifyService: NotificationService | undefined;
   private readonly notificationData: NotificationData;
   private apiKey: string | undefined;
 
   constructor() {
-    this.s3BucketService = new S3BucketService(new S3());
     this.testStationsService = new TestStationsService(new LambdaService(new Lambda()));
     this.notificationData = new NotificationData();
   }
 
   /**
-   * Service that uploads the ATF Report in S3 Bucket and send emails to the Test Stations Email
+   * Service that sends ATF Report emails to the Test Stations Email
    * @param generationServiceResponse - The response from the ATF generation service
    * @param visit - Data about the current visit
    */

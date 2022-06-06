@@ -6,7 +6,7 @@ import mockConfig from "../util/mockConfig";
 
 describe("sendATFReport", () => {
   mockConfig();
-  context("ATF report upload to S3 Bucket and sent by email", () => {
+  context("ATF report sent by email", () => {
     afterEach(() => {
       jest.restoreAllMocks();
     });
@@ -46,7 +46,6 @@ describe("sendATFReport", () => {
     context("When the Test Stations service throws an error", () => {
       it("should bubble up that error", () => {
         const sendATFReport: SendATFReport = new SendATFReport();
-        sendATFReport.s3BucketService.upload = jest.fn().mockResolvedValue("ok");
         sendATFReport.testStationsService.getTestStationEmail = jest.fn().mockRejectedValue(new Error("It Broke"));
         expect.assertions(1);
         return sendATFReport.sendATFReport(generationServiceResponse, visit).catch((error: any) => {
@@ -60,7 +59,6 @@ describe("sendATFReport", () => {
         const sendATFReport: SendATFReport = new SendATFReport();
         sendATFReport.notifyService = new NotificationService(new NotifyClient());
         sendATFReport.notifyService.sendNotification = jest.fn().mockRejectedValue(new Error("It Broke"));
-        sendATFReport.s3BucketService.upload = jest.fn().mockResolvedValue("ok");
         sendATFReport.testStationsService.getTestStationEmail = jest.fn().mockResolvedValue([
           {
             testStationPNumber: "09-4129632",
@@ -84,7 +82,6 @@ describe("sendATFReport", () => {
 
         jest.spyOn(console, "log");
 
-        sendATFReport.s3BucketService.upload = jest.fn().mockResolvedValue("details from s3");
         sendATFReport.testStationsService.getTestStationEmail = jest.fn().mockResolvedValue([
           {
             testStationPNumber: "87-1369569",
@@ -106,7 +103,6 @@ describe("sendATFReport", () => {
         sendATFReport.notifyService = new NotificationService(new NotifyClient());
         const notifyMock = jest.fn().mockResolvedValue(true);
         sendATFReport.notifyService.sendNotification = notifyMock;
-        sendATFReport.s3BucketService.upload = jest.fn().mockResolvedValue("details from s3");
         sendATFReport.testStationsService.getTestStationEmail = jest.fn().mockResolvedValue([
           {
             testStationPNumber: "09-4129632",
@@ -120,7 +116,6 @@ describe("sendATFReport", () => {
           const notifyCallArgsTester = notifyMock.mock.calls[1];
           expect(notifyCallArgsTestStation[1]).toEqual(["teststationname@dvsa.gov.uk"]);
           expect(notifyCallArgsTester[1]).toEqual(["test@dvsa.gov.uk"]);
-          // expect(response).toEqual("details from s3");
         });
       });
     });
