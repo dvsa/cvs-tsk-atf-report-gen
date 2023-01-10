@@ -36,7 +36,7 @@
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.27",
     "node-yaml": "^4.0.1",
-    "notifications-node-client": "^5.1.1",
+    "notifications-node-client": "^6.0.0",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
@@ -61,7 +61,7 @@
     "nyc": "^14.1.1",
     "prettier": "^2.3.2",
     "serverless": "^3.7.1",
-    "serverless-offline": "^5.12.1",
+    "serverless-offline": "^12.0.4",
     "serverless-plugin-tracing": "^2.0.0",
     "serverless-plugin-typescript": "^1.1.9",
     "sinon": "^7.5.0",
