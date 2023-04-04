@@ -40,10 +40,13 @@ class SendATFReport {
     // VTM allows blank email addresses on a test-station record so check before sending
     if (response[0].testStationEmails && response[0].testStationEmails.length > 0) {
       await this.notifyService.sendNotification(sendNotificationData, response[0].testStationEmails);
+      console.log(`Report successfully sent to ATF for ${visit.testStationPNumber} with the activity id ${visit.id}`);
     } else {
       console.log(`No email address exists for test station PNumber ${visit.testStationPNumber}`);
     }
-    return this.notifyService.sendNotification(sendNotificationData, [visit.testerEmail]);
+    const res = this.notifyService.sendNotification(sendNotificationData, [visit.testerEmail]);
+    console.log(`Report successfully sent to VSA for test station PNumber ${visit.testStationPNumber} with the activity id ${visit.id}`);
+    return res;
   }
 
   /**
