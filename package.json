@@ -61,7 +61,7 @@
     "nyc": "^14.1.1",
     "prettier": "^2.3.2",
     "serverless": "^3.7.1",
-    "serverless-offline": "^5.12.1",
+    "serverless-offline": "^12.0.4",
     "serverless-plugin-tracing": "^2.0.0",
     "serverless-plugin-typescript": "^1.1.9",
     "sinon": "^7.5.0",
