@@ -92,7 +92,7 @@ describe("sendATFReport", () => {
         expect.assertions(2);
         return sendATFReport.sendATFReport(generationServiceResponse, visit).then((response: any) => {
           expect(console.log).toBeCalledWith(`No email address exists for test station PNumber ${visit.testStationPNumber}`);
-          expect(console.log).toBeCalledTimes(2);
+          expect(console.log).toBeCalledTimes(1);
         });
       });
     });

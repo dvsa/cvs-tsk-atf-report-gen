@@ -1,7 +1,7 @@
 // @ts-ignore
 import { NotifyClient } from "notifications-node-client";
 import { Lambda } from "aws-sdk";
-import { ACTIVITY_TYPE } from "../assets/enum";
+import { ACTIVITY_TYPE, EMAIL_TYPE } from "../assets/enum";
 import { Configuration } from "../utils/Configuration";
 import { IActivitiesList, IActivity, ITestResults } from "../models";
 import { LambdaService } from "./LambdaService";
@@ -39,14 +39,11 @@ class SendATFReport {
     }
     // VTM allows blank email addresses on a test-station record so check before sending
     if (response[0].testStationEmails && response[0].testStationEmails.length > 0) {
-      await this.notifyService.sendNotification(sendNotificationData, response[0].testStationEmails);
-      console.log(`Report successfully sent to ATF for ${visit.testStationPNumber} with the activity id ${visit.id}`);
+      await this.notifyService.sendNotification(sendNotificationData, response[0].testStationEmails, EMAIL_TYPE.ATF);
     } else {
       console.log(`No email address exists for test station PNumber ${visit.testStationPNumber}`);
     }
-    const res = this.notifyService.sendNotification(sendNotificationData, [visit.testerEmail]);
-    console.log(`Report successfully sent to VSA for test station PNumber ${visit.testStationPNumber} with the activity id ${visit.id}`);
-    return res;
+    return this.notifyService.sendNotification(sendNotificationData, [visit.testerEmail], EMAIL_TYPE.VSA);
   }
 
   /**
