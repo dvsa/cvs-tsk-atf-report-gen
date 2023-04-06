@@ -43,7 +43,7 @@ class SendATFReport {
     } else {
       console.log(`No email address exists for test station PNumber ${visit.testStationPNumber}`);
     }
-    return this.notifyService.sendNotification(sendNotificationData, [visit.testerEmail], EMAIL_TYPE.VSA, "13131231-12312312");
+    return this.notifyService.sendNotification(sendNotificationData, [visit.testerEmail], EMAIL_TYPE.VSA, visit.id);
   }
 
   /**
