@@ -37,11 +37,11 @@ class TestResultsService {
 
       // Sort results by testEndTimestamp
       testResults.sort((first: any, second: any): number => {
-        if (moment(first.testEndTimestamp).isBefore(second.testEndTimestamp)) {
+        if (moment(first.testTypeEndTimeStamp).isBefore(second.testTypeEndTimeStamp)) {
           return -1;
         }
 
-        if (moment(first.testEndTimestamp).isAfter(second.testEndTimestamp)) {
+        if (moment(first.testTypeEndTimeStamp).isAfter(second.testTypeEndTimeStamp)) {
           return 1;
         }
 
