@@ -48,6 +48,9 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
 };
 
 export const processRecord = (record: any) => {
+  console.log(record);
+  console.log(JSON.parse(record));
+  console.log(JSON.parse(record).Message);
   const recordBody = JSON.parse(JSON.parse(record).Message) ?? "";
   if (
     recordBody.eventName === "MODIFY"
