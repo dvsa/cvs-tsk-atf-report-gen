@@ -47,7 +47,7 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
   });
 };
 
-const processRecord = (record: any) => {
+export const processRecord = (record: any) => {
   const recordBody = JSON.parse(JSON.parse(record).Message) ?? "";
   if (
     recordBody.eventName === "MODIFY"
