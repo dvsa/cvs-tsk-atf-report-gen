@@ -1,5 +1,5 @@
 import { Callback, Context, Handler } from "aws-lambda";
-import { AWSError, Lambda } from "aws-sdk";
+import { AWSError, DynamoDB, Lambda } from "aws-sdk";
 import { ManagedUpload } from "aws-sdk/clients/s3";
 import { ERRORS } from "../assets/enum";
 import { ActivitiesService } from "../services/ActivitiesService";
@@ -26,8 +26,8 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
   const sendATFReport: SendATFReport = new SendATFReport();
 
   event.Records.forEach((record: any) => {
-    console.log(JSON.stringify(record));
-    const visit: any = JSON.parse(record.body);
+    const visit: any = processRecord(record);
+    console.log(JSON.stringify(visit));
     const atfReportPromise = reportService
       .generateATFReport(visit)
       .then((generationServiceResponse) => {
@@ -46,5 +46,17 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
     throw error;
   });
 };
+
+const processRecord = (record: any) => {
+  const recordBody = JSON.parse(record.body ?? '');
+  if (
+    recordBody.eventName === 'MODIFY'
+    && recordBody.dynamodb
+    && recordBody.dynamodb.NewImage
+  ) {
+    return DynamoDB.Converter.unmarshall(recordBody.dynamodb.NewImage);
+  }
+  return undefined;
+}
 
 export { reportGen };
