@@ -79,7 +79,7 @@ describe("Retro Gen Function", () => {
       ReportGenerationService.prototype.generateATFReport = jest.fn().mockRejectedValue(new Error("Oh no!"));
       expect.assertions(1);
       try {
-        await reportGen({ Records: [mockPayload] }, ctx as any, () => {
+        await reportGen({ Records: [{ body: mockPayload }] }, ctx as any, () => {
           return;
         });
       } catch (e) {
@@ -91,7 +91,7 @@ describe("Retro Gen Function", () => {
       SendATFReport.prototype.sendATFReport = jest.fn().mockRejectedValue(new Error("Oh dear"));
       expect.assertions(1);
       try {
-        await reportGen({ Records: [mockPayload] }, ctx as any, () => {
+        await reportGen({ Records: [{ body: mockPayload }] }, ctx as any, () => {
           return;
         });
       } catch (e) {
