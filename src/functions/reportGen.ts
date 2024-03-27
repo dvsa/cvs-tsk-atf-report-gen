@@ -48,15 +48,15 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
 };
 
 const processRecord = (record: any) => {
-  const recordBody = JSON.parse(record.body ?? '');
+  const recordBody = JSON.parse(record.body ?? "");
   if (
-    recordBody.eventName === 'MODIFY'
+    recordBody.eventName === "MODIFY"
     && recordBody.dynamodb
     && recordBody.dynamodb.NewImage
   ) {
     return DynamoDB.Converter.unmarshall(recordBody.dynamodb.NewImage);
   }
   return undefined;
-}
+};
 
 export { reportGen };
