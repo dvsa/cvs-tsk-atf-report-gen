@@ -1,12 +1,12 @@
-import { AWSError, Lambda } from "aws-sdk";
 import { Callback, Context, Handler } from "aws-lambda";
+import { AWSError, Lambda } from "aws-sdk";
 import { ManagedUpload } from "aws-sdk/clients/s3";
-import { ActivitiesService } from "../services/ActivitiesService";
 import { ERRORS } from "../assets/enum";
+import { ActivitiesService } from "../services/ActivitiesService";
+import { LambdaService } from "../services/LambdaService";
 import { ReportGenerationService } from "../services/ReportGenerationService";
 import { SendATFReport } from "../services/SendATFReport";
 import { TestResultsService } from "../services/TestResultsService";
-import { LambdaService } from "../services/LambdaService";
 
 /**
  * λ function to process a DynamoDB stream of test results into a queue for certificate generation.
@@ -26,6 +26,7 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
   const sendATFReport: SendATFReport = new SendATFReport();
 
   event.Records.forEach((record: any) => {
+    console.log(JSON.stringify(record));
     const visit: any = JSON.parse(record.body);
     const atfReportPromise = reportService
       .generateATFReport(visit)
