@@ -9,5 +9,6 @@ export const processRecord = (record: any) => {
     ) {
       return DynamoDB.Converter.unmarshall(recordBody.dynamodb.NewImage);
     }
+    console.error(`process return undefined, record is ${recordBody}`);
     return undefined;
 };
