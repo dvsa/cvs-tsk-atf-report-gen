@@ -1,5 +1,5 @@
 import { Callback, Context, Handler } from "aws-lambda";
-import { AWSError, DynamoDB, Lambda } from "aws-sdk";
+import { AWSError, Lambda } from "aws-sdk";
 import { ManagedUpload } from "aws-sdk/clients/s3";
 import { ERRORS } from "../assets/enum";
 import { ActivitiesService } from "../services/ActivitiesService";
@@ -7,6 +7,7 @@ import { LambdaService } from "../services/LambdaService";
 import { ReportGenerationService } from "../services/ReportGenerationService";
 import { SendATFReport } from "../services/SendATFReport";
 import { TestResultsService } from "../services/TestResultsService";
+import { processRecord } from "../utils/sqsProcess";
 
 /**
  * λ function to process a DynamoDB stream of test results into a queue for certificate generation.
@@ -27,39 +28,25 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
 
   event.Records.forEach((record: any) => {
     const visit: any = processRecord(record);
-    console.log(JSON.stringify(visit));
-    const atfReportPromise = reportService
-      .generateATFReport(visit)
-      .then((generationServiceResponse) => {
-        return sendATFReport.sendATFReport(generationServiceResponse, visit);
-      })
-      .catch((error: any) => {
-        console.log(error);
-        throw error;
-      });
+    if (visit) {
+      const atfReportPromise = reportService
+        .generateATFReport(visit)
+        .then((generationServiceResponse) => {
+          return sendATFReport.sendATFReport(generationServiceResponse, visit);
+        })
+        .catch((error: any) => {
+          console.log(error);
+          throw error;
+        });
 
-    atfReportPromises.push(atfReportPromise);
+      atfReportPromises.push(atfReportPromise);
+    }
   });
 
   return Promise.all(atfReportPromises).catch((error: AWSError) => {
     console.error(error);
     throw error;
   });
-};
-
-export const processRecord = (record: any) => {
-  console.log(record.body);
-  console.log(JSON.parse(record.body));
-  console.log(JSON.parse(record.body).Message);
-  const recordBody = JSON.parse(JSON.parse(record.body).Message) ?? "";
-  if (
-    recordBody.eventName === "MODIFY"
-    && recordBody.dynamodb
-    && recordBody.dynamodb.NewImage
-  ) {
-    return DynamoDB.Converter.unmarshall(recordBody.dynamodb.NewImage);
-  }
-  return undefined;
 };
 
 export { reportGen };
