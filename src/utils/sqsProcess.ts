@@ -1,7 +1,8 @@
 import DynamoDB from "aws-sdk/clients/dynamodb";
 
 export const processRecord = (record: any) => {
-    const recordBody = JSON.parse(record.body.Message);
+    const recordBody = JSON.parse(JSON.parse(record.body).Message);
+
     console.log("record body is, ", recordBody);
     console.log("record eventName is, ", recordBody.eventName);
     console.log("record dynamodb is, ", recordBody.dynamodb);
