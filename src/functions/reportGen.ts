@@ -1,3 +1,4 @@
+import { processRecord } from "@dvsa/cvs-microservice-common/functions/sqsFilter";
 import { Callback, Context, Handler } from "aws-lambda";
 import { AWSError, Lambda } from "aws-sdk";
 import { ManagedUpload } from "aws-sdk/clients/s3";
@@ -7,7 +8,6 @@ import { LambdaService } from "../services/LambdaService";
 import { ReportGenerationService } from "../services/ReportGenerationService";
 import { SendATFReport } from "../services/SendATFReport";
 import { TestResultsService } from "../services/TestResultsService";
-import { processRecord } from "../utils/sqsProcess";
 
 /**
  * λ function to process a DynamoDB stream of test results into a queue for certificate generation.
@@ -27,7 +27,8 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
   const sendATFReport: SendATFReport = new SendATFReport();
 
   event.Records.forEach((record: any) => {
-    const visit: any = processRecord(record);
+    const recordBody =JSON.parse(JSON.parse(record.body).Message);
+    const visit: any = processRecord(recordBody);
     if (visit) {
       const atfReportPromise = reportService
         .generateATFReport(visit)
