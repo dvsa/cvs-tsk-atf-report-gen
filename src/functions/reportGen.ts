@@ -29,7 +29,7 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
 
   event.Records.forEach((record: any) => {
     const recordBody = JSON.parse(record?.body)
-    const visit: any = unmarshall(recordBody);
+    const visit: any = unmarshall(recordBody?.dynamodb.NewImage);
 
     if (visit) {
       const atfReportPromise = reportService
