@@ -1,6 +1,6 @@
 import { LambdaClient } from "@aws-sdk/client-lambda";
 import { PutObjectRequest } from "@aws-sdk/client-s3";
-import { processRecord } from "@dvsa/cvs-microservice-common/functions/sqsFilter";
+import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { ServiceException } from "@smithy/smithy-client";
 import { Callback, Context, Handler } from "aws-lambda";
 import { ERRORS } from "../assets/enum";
@@ -29,7 +29,7 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
 
   event.Records.forEach((record: any) => {
     const recordBody = JSON.parse(record?.body)
-    const visit: any = processRecord(recordBody);
+    const visit: any = unmarshall(recordBody);
 
     if (visit) {
       const atfReportPromise = reportService
