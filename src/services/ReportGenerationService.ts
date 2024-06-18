@@ -18,7 +18,7 @@ class ReportGenerationService {
    * @param activity - activity for which to generate the report
    */
   public generateATFReport(activity: IActivity): Promise<any> {
-    console.debug("Inside generating ATF report");
+    console.debug("Inside generateATFReport");
     return this.testResultsService
       .getTestResults({
         testerStaffId: activity.testerStaffId,
