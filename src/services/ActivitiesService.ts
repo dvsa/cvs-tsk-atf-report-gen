@@ -35,7 +35,7 @@ class ActivitiesService {
     };
 
     if (params.activityType !== "visit") {
-      console.log("not a visit, terminating runtime");
+      console.log("not a visit, resolving a promise with an empty array");
       return Promise.resolve([]);
     }
 
