@@ -38,7 +38,7 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
       const atfReportPromise = reportService
         .generateATFReport(visit)
         .then((generationServiceResponse) => {
-          console.debug("Inside generate promise, now creating send promises");
+          console.debug("Inside generateATFReport promise, now creating send promises");
           return sendATFReport.sendATFReport(generationServiceResponse, visit);
         })
         .catch((error: any) => {
