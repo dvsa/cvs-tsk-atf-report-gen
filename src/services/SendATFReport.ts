@@ -30,7 +30,7 @@ class SendATFReport {
     const activitiesList = this.computeActivitiesList(generationServiceResponse.testResults, generationServiceResponse.waitActivities);
 
     const response = await this.testStationsService.getTestStationEmail(visit.testStationPNumber);
-    console.debug(`response from get test station email : ${JSON.stringify(response)}`);
+    console.debug(`response from get test station email: ${JSON.stringify(response)}`);
     const sendNotificationData = this.notificationData.generateActivityDetails(visit, activitiesList);
     console.debug(`send notification data : ${JSON.stringify(sendNotificationData)}`);
     if (!this.notifyService) {
