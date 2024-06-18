@@ -19,7 +19,7 @@ class TestResultsService {
    * @param params - getTestResultsByTesterStaffId query parameters
    */
   public getTestResults(params: any): Promise<any> {
-    console.debug(`inside get test results ${JSON.stringify(params)}`);
+    console.debug(`inside get test results: ${JSON.stringify(params)}`);
     const config: IInvokeConfig = this.config.getInvokeConfig();
     const invokeParams: InvocationRequest = {
       FunctionName: config.functions.testResults.name,
