@@ -1,6 +1,6 @@
 import { LambdaClient } from "@aws-sdk/client-lambda";
 import { PutObjectRequest } from "@aws-sdk/client-s3";
-import { unmarshall } from '@aws-sdk/util-dynamodb';
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 import { ServiceException } from "@smithy/smithy-client";
 import { Callback, Context, Handler } from "aws-lambda";
 import { ERRORS } from "../assets/enum";
@@ -27,14 +27,18 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
 
   const sendATFReport: SendATFReport = new SendATFReport();
 
+  console.debug("Services injected, looping over visits");
   event.Records.forEach((record: any) => {
-    const recordBody = JSON.parse(record?.body)
+    const recordBody = JSON.parse(record?.body);
     const visit: any = unmarshall(recordBody?.dynamodb.NewImage);
+
+    console.debug(`visit is: ${JSON.stringify(visit)}`);
 
     if (visit) {
       const atfReportPromise = reportService
         .generateATFReport(visit)
         .then((generationServiceResponse) => {
+          console.debug("Inside generate promise, now creating send promises");
           return sendATFReport.sendATFReport(generationServiceResponse, visit);
         })
         .catch((error: any) => {
@@ -46,6 +50,7 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
     }
   });
 
+  console.debug("About to send reports with promise all at bottom of handler.");
   return Promise.all(atfReportPromises).catch((error: ServiceException) => {
     console.error(error);
     throw error;

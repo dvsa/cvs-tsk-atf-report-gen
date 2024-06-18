@@ -1,8 +1,8 @@
-import { IActivity } from "../models";
-import { TestResultsService } from "./TestResultsService";
 import { ERRORS, STATUSES } from "../assets/enum";
+import { IActivity } from "../models";
 import { HTTPError } from "../models/HTTPError";
 import { ActivitiesService } from "./ActivitiesService";
+import { TestResultsService } from "./TestResultsService";
 
 class ReportGenerationService {
   private readonly testResultsService: TestResultsService;
@@ -18,6 +18,7 @@ class ReportGenerationService {
    * @param activity - activity for which to generate the report
    */
   public generateATFReport(activity: IActivity): Promise<any> {
+    console.debug("Inside generating ATF report");
     return this.testResultsService
       .getTestResults({
         testerStaffId: activity.testerStaffId,
