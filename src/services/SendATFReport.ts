@@ -1,7 +1,7 @@
 import { LambdaClient } from "@aws-sdk/client-lambda";
 // @ts-ignore
 import { NotifyClient } from "notifications-node-client";
-import { ACTIVITY_TYPE, EMAIL_TYPE } from "../assets/enum";
+import { ACTIVITY_TYPE } from "../assets/enum";
 import { IActivitiesList, IActivity, ITestResults } from "../models";
 import { Configuration } from "../utils/Configuration";
 import { NotificationData } from "../utils/generateNotificationData";
@@ -25,7 +25,7 @@ class SendATFReport {
    * @param generationServiceResponse - The response from the ATF generation service
    * @param visit - Data about the current visit
    */
-  public async sendATFReport(generationServiceResponse: any, visit: any): Promise<any> {
+  public async sendATFReport(generationServiceResponse: any, visit: any) {
     // Add testResults and waitActivities in a common list and sort it by startTime
     const activitiesList = this.computeActivitiesList(generationServiceResponse.testResults, generationServiceResponse.waitActivities);
 
@@ -39,13 +39,17 @@ class SendATFReport {
       }
       this.notifyService = new NotificationService(new NotifyClient(this.apiKey));
     }
+
+    let combinedEmails = []
+       
     // VTM allows blank email addresses on a test-station record so check before sending
     if (response[0].testStationEmails && response[0].testStationEmails.length > 0) {
-      await this.notifyService.sendNotification(sendNotificationData, response[0].testStationEmails, EMAIL_TYPE.ATF, visit.id);
+      combinedEmails = response[0].testStationEmails.push(visit.testerEmail)
     } else {
       console.log(`No email address exists for test station PNumber ${visit.testStationPNumber}`);
+      combinedEmails = [visit.testerEmail]
     }
-    return this.notifyService.sendNotification(sendNotificationData, [visit.testerEmail], EMAIL_TYPE.VSA, visit.id);
+    await this.notifyService.sendNotification(sendNotificationData, combinedEmails, visit.id);
   }
 
   /**

@@ -1,7 +1,6 @@
 import { LambdaClient } from "@aws-sdk/client-lambda";
 import { PutObjectRequest } from "@aws-sdk/client-s3";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
-import { ServiceException } from "@smithy/smithy-client";
 import { Callback, Context, Handler } from "aws-lambda";
 import { ERRORS } from "../assets/enum";
 import { ActivitiesService } from "../services/ActivitiesService";
@@ -23,38 +22,27 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
   }
   const lambdaService = new LambdaService(new LambdaClient({}));
   const reportService: ReportGenerationService = new ReportGenerationService(new TestResultsService(lambdaService), new ActivitiesService(lambdaService));
-  const atfReportPromises: Promise<PutObjectRequest>[] = [];
-
   const sendATFReport: SendATFReport = new SendATFReport();
 
-  console.debug("Services injected, looping over visits");
-  event.Records.forEach((record: any) => {
-    const recordBody = JSON.parse(record?.body);
-    const visit: any = unmarshall(recordBody?.dynamodb.NewImage);
+  console.debug("Services injected, looping over sqs events");
+  try {
+    event.Records.forEach(async (record: any) => {
+      const recordBody = JSON.parse(record?.body);
+      const visit: any = unmarshall(recordBody?.dynamodb.NewImage);
 
-    console.debug(`visit is: ${JSON.stringify(visit)}`);
+      console.debug(`visit is: ${JSON.stringify(visit)}`);
 
-    if (visit) {
-      const atfReportPromise = reportService
-        .generateATFReport(visit)
-        .then((generationServiceResponse) => {
-          console.debug("Inside generateATFReport promise, now creating send promises");
-          return sendATFReport.sendATFReport(generationServiceResponse, visit);
-        })
-        .catch((error: any) => {
-          console.log(error);
-          throw error;
-        });
-
-      atfReportPromises.push(atfReportPromise);
-    }
-  });
-
-  console.debug("About to send reports with promise all at bottom of handler.");
-  return Promise.all(atfReportPromises).catch((error: ServiceException) => {
+      if (visit) {
+        const generationServiceResponse = await reportService.generateATFReport(visit)
+        console.debug(`Report generated: ${generationServiceResponse}`);
+        await sendATFReport.sendATFReport(generationServiceResponse, visit);
+        console.debug("All emails sent, terminating lambda");
+      }
+    });
+  } catch(error) {
     console.error(error);
     throw error;
-  });
+  }
 };
 
 export { reportGen };
