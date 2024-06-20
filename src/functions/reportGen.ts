@@ -34,7 +34,7 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
 
       if (visit) {
         const generationServiceResponse = await reportService.generateATFReport(visit);
-        console.debug(`Report generated: ${generationServiceResponse}`);
+        console.debug(`Report generated: ${JSON.stringify(generationServiceResponse)}`);
         await sendATFReport.sendATFReport(generationServiceResponse, visit);
         console.debug("All emails sent, terminating lambda");
       }
