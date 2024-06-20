@@ -40,16 +40,14 @@ class SendATFReport {
       this.notifyService = new NotificationService(new NotifyClient(this.apiKey));
     }
 
-    let combinedEmails = []
-       
+    const emails = [visit.testerEmail];
     // VTM allows blank email addresses on a test-station record so check before sending
     if (response[0].testStationEmails && response[0].testStationEmails.length > 0) {
-      combinedEmails = response[0].testStationEmails.push(visit.testerEmail)
+      emails.push(...response[0].testStationEmails);
     } else {
       console.log(`No email address exists for test station PNumber ${visit.testStationPNumber}`);
-      combinedEmails = [visit.testerEmail]
     }
-    await this.notifyService.sendNotification(sendNotificationData, combinedEmails, visit.id);
+    await this.notifyService.sendNotification(sendNotificationData, emails, visit.id);
   }
 
   /**

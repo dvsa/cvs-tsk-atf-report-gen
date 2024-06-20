@@ -10,8 +10,8 @@ import { SendATFReport } from "../services/SendATFReport";
 import { TestResultsService } from "../services/TestResultsService";
 
 /**
- * λ function to process a DynamoDB stream of test results into a queue for certificate generation.
- * @param event - DynamoDB Stream event
+ * λ function to process a SQS of test results into a queue for certificate generation.
+ * @param event - SQS event
  * @param context - λ Context
  * @param callback - callback function
  */
@@ -26,19 +26,19 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
 
   console.debug("Services injected, looping over sqs events");
   try {
-    event.Records.forEach(async (record: any) => {
+    for (const record of event.Records) {
       const recordBody = JSON.parse(record?.body);
       const visit: any = unmarshall(recordBody?.dynamodb.NewImage);
 
       console.debug(`visit is: ${JSON.stringify(visit)}`);
 
       if (visit) {
-        const generationServiceResponse = await reportService.generateATFReport(visit)
+        const generationServiceResponse = await reportService.generateATFReport(visit);
         console.debug(`Report generated: ${generationServiceResponse}`);
         await sendATFReport.sendATFReport(generationServiceResponse, visit);
         console.debug("All emails sent, terminating lambda");
       }
-    });
+    }
   } catch(error) {
     console.error(error);
     throw error;

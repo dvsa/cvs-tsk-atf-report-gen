@@ -17,38 +17,36 @@ class ReportGenerationService {
    * Generates the ATF report for a given activity
    * @param activity - activity for which to generate the report
    */
-  public generateATFReport(activity: IActivity): Promise<any> {
+  public async generateATFReport(activity: IActivity): Promise<any> {
     console.debug("Inside generateATFReport");
-    return this.testResultsService
-      .getTestResults({
-        testerStaffId: activity.testerStaffId,
-        fromDateTime: activity.startTime,
-        toDateTime: activity.endTime,
-        testStationPNumber: activity.testStationPNumber,
-        testStatus: STATUSES.SUBMITTED,
-      })
-      .then((testResults: any) => {
-        // Fetch 'wait' activities for this visit activity
-        return this.activitiesService
-          .getActivities({
-            testerStaffId: activity.testerStaffId,
-            fromStartTime: activity.startTime,
-            toStartTime: activity.endTime,
-            testStationPNumber: activity.testStationPNumber,
-            activityType: "wait",
-          })
-          .then((waitActivities: any[]) => {
-            console.log(`wait Activities Size: ${waitActivities.length}`);
-            const totalActivitiesLen = testResults.length + waitActivities.length;
-            console.log(`Total Activities Len: ${totalActivitiesLen}`);
+    try {
+      const testResults = await this.testResultsService
+        .getTestResults({
+          testerStaffId: activity.testerStaffId,
+          fromDateTime: activity.startTime,
+          toDateTime: activity.endTime,
+          testStationPNumber: activity.testStationPNumber,
+          testStatus: STATUSES.SUBMITTED,
+        });
 
-            return { testResults, waitActivities };
-          })
-          .catch((error: any) => {
-            console.log(error);
-            throw new HTTPError(500, ERRORS.ATF_CANT_BE_CREATED);
-          });
-      });
+      const waitActivities = await this.activitiesService
+        .getActivities({
+          testerStaffId: activity.testerStaffId,
+          fromStartTime: activity.startTime,
+          toStartTime: activity.endTime,
+          testStationPNumber: activity.testStationPNumber,
+          activityType: "wait",
+        });
+
+      console.log(`wait Activities Size: ${waitActivities.length}`);
+      const totalActivitiesLen = testResults.length + waitActivities.length;
+      console.log(`Total Activities Len: ${totalActivitiesLen}`);
+
+      return { testResults, waitActivities };
+    } catch (error) {
+      console.log(error);
+      throw new HTTPError(500, ERRORS.ATF_CANT_BE_CREATED);
+    }
   }
 }
 
