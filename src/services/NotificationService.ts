@@ -29,9 +29,9 @@ class NotificationService {
     for (const email of emails) {
       try {
         await this.notifyClient.sendEmail(templateId, email, emailDetails);
-        console.log(`report successfully sent email to ${email} for PNumber ${params.testStationPNumber} with activity ${activityId}.`);
+        console.log(`report successfully sent email for PNumber ${params.testStationPNumber} with activity ${activityId}.`);
       } catch (error) {
-        console.log(`failed to send for ${JSON.stringify(email)}`);
+        console.log(`failed to send for ${email}`);
         console.error(error);
       }
     }
