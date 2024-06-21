@@ -30,7 +30,7 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
       const recordBody = JSON.parse(record?.body);
       const visit: any = unmarshall(recordBody?.dynamodb.NewImage);
 
-      console.debug(`visit is: ${JSON.stringify(visit)}`);
+      console.debug(`visit is: ${JSON.stringify(visit.id)}`);
 
       if (visit) {
         const generationServiceResponse = await reportService.generateATFReport(visit);

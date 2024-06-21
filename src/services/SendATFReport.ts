@@ -32,7 +32,7 @@ class SendATFReport {
     const response = await this.testStationsService.getTestStationEmail(visit.testStationPNumber);
     console.debug("get test stations responded");
     const sendNotificationData = this.notificationData.generateActivityDetails(visit, activitiesList);
-    console.debug(`send notification data : ${JSON.stringify(sendNotificationData)}`);
+    console.debug(`send notification data: ${JSON.stringify(sendNotificationData)}`);
     if (!this.notifyService) {
       if (!this.apiKey) {
         this.apiKey = (await Configuration.getInstance().getGovNotifyConfig()).api_key;
