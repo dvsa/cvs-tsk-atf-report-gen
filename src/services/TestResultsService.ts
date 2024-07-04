@@ -4,7 +4,7 @@ import moment from "moment";
 import { IInvokeConfig } from "../models";
 import { Configuration } from "../utils/Configuration";
 import { LambdaService } from "./LambdaService";
-import { TestResultSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result";
+import { TestResultSchema, TestTypeSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result";
 
 class TestResultsService {
   private readonly lambdaClient: LambdaService;
@@ -62,17 +62,17 @@ class TestResultsService {
    * into multiple records with a single test type
    * @param testResults
    */
-  public expandTestResults(testResults: any): any[] {
+  public expandTestResults(testResults: TestResultSchema[]): any[] {
     console.debug("Splitting test results into multiple records");
     return testResults
-      .map((testResult: any) => {
+      .map((testResult: TestResultSchema) => {
         // Separate each test type in a record to form multiple test results
-        const splittedRecords: any[] = [];
-        const templateRecord: any = Object.assign({}, testResult);
+        const splittedRecords: TestResultSchema[] = [];
+        const templateRecord: TestResultSchema = Object.assign({}, testResult);
         Object.assign(templateRecord, {});
 
-        testResult.testTypes.forEach((testType: any, i: number, array: any[]) => {
-          const clonedRecord: any = Object.assign({}, templateRecord); // Create test result from template
+        testResult.testTypes.forEach((testType: TestTypeSchema, i: number, array: any[]) => {
+          const clonedRecord: TestResultSchema = Object.assign({}, templateRecord); // Create test result from template
           Object.assign(clonedRecord, { testTypes: testType }); // Assign it the test type
 
           splittedRecords.push(clonedRecord);
