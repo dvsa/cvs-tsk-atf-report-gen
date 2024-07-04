@@ -63,10 +63,9 @@ class SendATFReport {
 
     // Adding Test activities to the list
     for (const testResult of testResultsList) {
-      const testResultTestType = testResult.testTypes as unknown as TestTypeSchema;
 
       const act: IActivitiesList = {
-        startTime: testResultTestType.testTypeStartTimestamp!,
+        startTime: testResult.testTypes[0].testTypeStartTimestamp!,
         activityType: ACTIVITY_TYPE.TEST,
         activity: testResult,
       };
