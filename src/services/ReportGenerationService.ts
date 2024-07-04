@@ -1,8 +1,8 @@
 import { ERRORS, STATUSES } from "../assets/enum";
-import { IActivity } from "../models";
 import { HTTPError } from "../models/HTTPError";
 import { ActivitiesService } from "./ActivitiesService";
 import { TestResultsService } from "./TestResultsService";
+import { ActivitySchema } from "@dvsa/cvs-type-definitions/types/v1/activity";
 
 class ReportGenerationService {
   private readonly testResultsService: TestResultsService;
@@ -17,7 +17,7 @@ class ReportGenerationService {
    * Generates the ATF report for a given activity
    * @param activity - activity for which to generate the report
    */
-  public async generateATFReport(activity: IActivity): Promise<any> {
+  public async generateATFReport(activity: ActivitySchema): Promise<any> {
     console.debug("Inside generateATFReport");
     try {
       const testResults = await this.testResultsService

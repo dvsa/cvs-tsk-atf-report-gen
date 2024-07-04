@@ -33,42 +33,42 @@ interface IMOTConfig {
   templateId: string;
 }
 
-interface IActivity {
-  id: string;
-  activityType: "visit" | "wait";
-  testStationName: string;
-  testStationPNumber: string;
-  testStationEmail: string;
-  testStationType: StationType;
-  testerName: string;
-  testerStaffId: string;
-  startTime: string;
-  endTime: string;
-  waitReason: [string];
-  notes: string;
-}
+// interface IActivity {
+//   id: string;
+//   activityType: "visit" | "wait";
+//   testStationName: string;
+//   testStationPNumber: string;
+//   testStationEmail: string;
+//   testStationType: StationType;
+//   testerName: string;
+//   testerStaffId: string;
+//   startTime: string;
+//   endTime: string;
+//   waitReason: [string];
+//   notes: string;
+// }
 
-interface ITestType {
-  testTypeStartTimestamp: string;
-  testTypeName: string;
-  testResult: string;
-  certificateNumber: string;
-  testExpiryDate: number;
-  testTypeEndTimeStamp: string;
-}
-
-interface ITestResults {
-  testerStaffId: string;
-  vrm: string;
-  testStationPNumber: string;
-  preparerId: string;
-  numberOfSeats: number;
-  testStartTimestamp: string;
-  testEndTimestamp: string;
-  testTypes: ITestType;
-  vin: string;
-  vehicleType: string;
-}
+// interface ITestType {
+//   testTypeStartTimestamp: string;
+//   testTypeName: string;
+//   testResult: string;
+//   certificateNumber: string;
+//   testExpiryDate: number;
+//   testTypeEndTimeStamp: string;
+// }
+//
+// interface ITestResults {
+//   testerStaffId: string;
+//   vrm: string;
+//   testStationPNumber: string;
+//   preparerId: string;
+//   numberOfSeats: number;
+//   testStartTimestamp: string;
+//   testEndTimestamp: string;
+//   testTypes: ITestType;
+//   vin: string;
+//   vehicleType: string;
+// }
 
 interface IInvokeConfig {
   params: { apiVersion: string; endpoint?: string };
@@ -102,4 +102,4 @@ interface IConfig {
   invoke: IIndexInvokeConfig;
 }
 
-export { IS3Config, IActivity, IInvokeConfig, IMOTConfig, ITestResults, IActivitiesList, ISecretConfig, IConfig };
+export { IS3Config, IInvokeConfig, IMOTConfig, IActivitiesList, ISecretConfig, IConfig };

@@ -2,12 +2,14 @@ import { LambdaClient } from "@aws-sdk/client-lambda";
 // @ts-ignore
 import { NotifyClient } from "notifications-node-client";
 import { ACTIVITY_TYPE } from "../assets/enum";
-import { IActivitiesList, IActivity, ITestResults } from "../models";
+import { IActivitiesList } from "../models";
 import { Configuration } from "../utils/Configuration";
 import { NotificationData } from "../utils/generateNotificationData";
 import { LambdaService } from "./LambdaService";
 import { NotificationService } from "./NotificationService";
 import { TestStationsService } from "./TestStationsService";
+import { TestResultSchema, TestTypeSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result";
+import { ActivitySchema } from "@dvsa/cvs-type-definitions/types/v1/activity";
 
 class SendATFReport {
   public testStationsService: TestStationsService;
@@ -53,15 +55,18 @@ class SendATFReport {
   /**
    * Method to collate testResults and waitActivities into a common list
    * and then sort them on startTime to display the activities in a sequence.
-   * @param testResultsList: testResults list
-   * @param waitActivitiesList: wait activities list
+   * @param testResultsList
+   * @param waitActivitiesList
    */
-  public computeActivitiesList(testResultsList: ITestResults[], waitActivitiesList: IActivity[]) {
+  public computeActivitiesList(testResultsList: TestResultSchema[], waitActivitiesList: ActivitySchema[]) {
     const list: IActivitiesList[] = [];
+
     // Adding Test activities to the list
     for (const testResult of testResultsList) {
+      const testResultTestType = testResult.testTypes as unknown as TestTypeSchema;
+
       const act: IActivitiesList = {
-        startTime: testResult.testTypes.testTypeStartTimestamp,
+        startTime: testResultTestType.testTypeStartTimestamp!,
         activityType: ACTIVITY_TYPE.TEST,
         activity: testResult,
       };
