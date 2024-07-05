@@ -62,7 +62,7 @@ class TestResultsService {
    * into multiple records with a single test type
    * @param testResults
    */
-  public expandTestResults(testResults: TestResultSchema[]): any[] {
+  public expandTestResults(testResults: TestResultSchema[]): TestResultSchema[] {
     console.debug("Splitting test results into multiple records");
     return testResults
       .map((testResult: TestResultSchema) => {
@@ -73,7 +73,7 @@ class TestResultsService {
 
         testResult.testTypes.forEach((testType: TestTypeSchema, i: number, array: any[]) => {
           const clonedRecord: TestResultSchema = Object.assign({}, templateRecord); // Create test result from template
-          Object.assign(clonedRecord, { testTypes: testType }); // Assign it the test type
+          Object.assign(clonedRecord, { testTypes: [testType] }); // Assign it the test type
 
           splittedRecords.push(clonedRecord);
         });

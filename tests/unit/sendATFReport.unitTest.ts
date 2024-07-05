@@ -3,6 +3,10 @@ import { SendATFReport } from "../../src/services/SendATFReport";
 // @ts-ignore
 import { NotifyClient } from "notifications-node-client";
 import mockConfig from "../util/mockConfig";
+import { ActivityType } from "@dvsa/cvs-type-definitions/types/v1/enums/activityType.enum";
+import { TestStationTypes } from "@dvsa/cvs-type-definitions/types/v1/enums/testStationType.enum";
+import { TestResultSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result";
+import { ActivitySchema } from "@dvsa/cvs-type-definitions/types/v1/activity";
 
 describe("sendATFReport", () => {
   mockConfig();
@@ -12,11 +16,11 @@ describe("sendATFReport", () => {
     });
     const visit = {
       id: "5e4bd304-446e-4678-8289-d34fca9256e9",
-      activityType: "visit",
+      activityType: ActivityType.VISIT,
       testStationName: "Rowe, Wunsch and Wisoky",
       testStationPNumber: "87-1369569",
       testStationEmail: "teststationname@dvsa.gov.uk",
-      testStationType: "gvts",
+      testStationType: TestStationTypes.GVTS,
       testerName: "Gica",
       testerEmail: "test@dvsa.gov.uk",
       testerStaffId: "1",
@@ -24,7 +28,7 @@ describe("sendATFReport", () => {
       endTime: "2019-01-14T15:36:33.987Z",
     };
     const generationServiceResponse = {
-      waitActivities: [],
+      waitActivities: [] as ActivitySchema[],
       testResults: [
         {
           testerStaffId: "1",
@@ -38,7 +42,7 @@ describe("sendATFReport", () => {
           vin: "XMGDE02FS0H012345",
           vehicleType: "psv",
         },
-      ],
+      ] as unknown as TestResultSchema[],
       fileName: "ATFReport_14-01-2019_0847_87-1369569_Gica.xlsx",
       fileBuffer: "<Buffer 50 4b 03 04 0a 00 00 00 08 00 c6 64 c3 4e 19 f8 08 be 60 01 00 00 39 05 00 00 13 00 00 00 5b 43 6f 6e 74 65 6e 74 5f 54 79 70 65 73 5d 2e 78 6d 6c ad ... >",
     };

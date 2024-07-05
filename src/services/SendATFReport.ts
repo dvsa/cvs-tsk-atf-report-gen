@@ -8,7 +8,7 @@ import { NotificationData } from "../utils/generateNotificationData";
 import { LambdaService } from "./LambdaService";
 import { NotificationService } from "./NotificationService";
 import { TestStationsService } from "./TestStationsService";
-import { TestResultSchema, TestTypeSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result";
+import { TestResultSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result";
 import { ActivitySchema } from "@dvsa/cvs-type-definitions/types/v1/activity";
 
 class SendATFReport {
@@ -27,11 +27,12 @@ class SendATFReport {
    * @param generationServiceResponse - The response from the ATF generation service
    * @param visit - Data about the current visit
    */
-  public async sendATFReport(generationServiceResponse: any, visit: any) {
+  public async sendATFReport(generationServiceResponse: { testResults: TestResultSchema[]; waitActivities: ActivitySchema[]; }, visit: ActivitySchema) {
     // Add testResults and waitActivities in a common list and sort it by startTime
+    // TODO RENAME
     const activitiesList = this.computeActivitiesList(generationServiceResponse.testResults, generationServiceResponse.waitActivities);
 
-    const response = await this.testStationsService.getTestStationEmail(visit.testStationPNumber);
+    const response = await this.testStationsService.getTestStationEmail(visit.testStationPNumber!);
     console.debug("get test stations responded");
     const sendNotificationData = this.notificationData.generateActivityDetails(visit, activitiesList);
     console.debug(`send notification data: ${JSON.stringify(sendNotificationData)}`);
@@ -42,14 +43,14 @@ class SendATFReport {
       this.notifyService = new NotificationService(new NotifyClient(this.apiKey));
     }
 
-    const emails = [visit.testerEmail];
+    const emails = [visit.testerEmail!];
     // VTM allows blank email addresses on a test-station record so check before sending
     if (response[0].testStationEmails && response[0].testStationEmails.length > 0) {
       emails.push(...response[0].testStationEmails);
     } else {
       console.log(`No email address exists for test station PNumber ${visit.testStationPNumber}`);
     }
-    await this.notifyService.sendNotification(sendNotificationData, emails, visit.id);
+    await this.notifyService.sendNotification(sendNotificationData, emails, visit.id!);
   }
 
   /**
@@ -63,7 +64,6 @@ class SendATFReport {
 
     // Adding Test activities to the list
     for (const testResult of testResultsList) {
-
       const act: IActivitiesList = {
         startTime: testResult.testTypes[0].testTypeStartTimestamp!,
         activityType: ACTIVITY_TYPE.TEST,
