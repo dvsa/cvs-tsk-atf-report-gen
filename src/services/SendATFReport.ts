@@ -81,7 +81,7 @@ class SendATFReport {
       list.push(act);
     }
     // Sorting the list by StartTime
-    const sortDateAsc = (date1: any, date2: any) => {
+    const sortDateAsc = (date1: IActivitiesList, date2: IActivitiesList) => {
       const date = new Date(date1.startTime).toISOString();
       const dateToCompare = new Date(date2.startTime).toISOString();
       if (date > dateToCompare) {

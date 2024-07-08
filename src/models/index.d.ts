@@ -1,10 +1,3 @@
-declare enum StationType {
-  ATF = "atf",
-  GVTS = "gvts",
-  HQ = "hq",
-  POTF = "potf",
-}
-
 interface IS3Config {
   endpoint: string;
   s3ForcePathStyle: boolean;
