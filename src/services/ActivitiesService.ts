@@ -1,7 +1,7 @@
 import { InvocationRequest, InvocationResponse } from "@aws-sdk/client-lambda";
 import { toUint8Array } from "@smithy/util-utf8";
 import moment from "moment";
-import { IActivitiesList, IInvokeConfig } from "../models";
+import { IInvokeConfig } from "../models";
 import { Configuration } from "../utils/Configuration";
 import { LambdaService } from "./LambdaService";
 import { ActivitySchema } from "@dvsa/cvs-type-definitions/types/v1/activity";
