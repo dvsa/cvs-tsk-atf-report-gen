@@ -1,6 +1,6 @@
 import { LambdaClient } from "@aws-sdk/client-lambda";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
-import { Callback, Context, Handler, SQSBatchItemFailure, SQSBatchResponse } from "aws-lambda";
+import { Callback, Context, Handler, SQSBatchItemFailure, SQSBatchResponse, SQSEvent } from "aws-lambda";
 import { ERRORS } from "../assets/enum";
 import { ActivitiesService } from "../services/ActivitiesService";
 import { LambdaService } from "../services/LambdaService";
@@ -15,7 +15,7 @@ import { ActivitySchema } from "@dvsa/cvs-type-definitions/types/v1/activity";
  * @param context - λ Context
  * @param callback - callback function
  */
-const reportGen: Handler = async (event: any, context?: Context, callback?: Callback): Promise<SQSBatchResponse> => {
+const reportGen: Handler = async (event: SQSEvent, context?: Context, callback?: Callback): Promise<SQSBatchResponse> => {
   if (!event || !event.Records || !Array.isArray(event.Records) || !event.Records.length) {
     console.error("ERROR: event is not defined.");
     throw new Error(ERRORS.EVENT_IS_EMPTY);
@@ -38,14 +38,11 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
         const generationServiceResponse = await reportService.generateATFReport(visit);
         console.debug(`Report generated: ${JSON.stringify(generationServiceResponse)}`);
         await sendATFReport.sendATFReport(generationServiceResponse, visit);
-        console.debug("All emails sent, terminating lambda");
       }
 
     } catch (error) {
       console.error(error);
-      batchItemFailures.push({
-        itemIdentifier: record.messageId,
-      });
+      batchItemFailures.push({ itemIdentifier: record.messageId });
     }
   }
   return { batchItemFailures };
