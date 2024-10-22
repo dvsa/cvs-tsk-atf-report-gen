@@ -1,7 +1,6 @@
 import { LambdaClient } from "@aws-sdk/client-lambda";
-import { PutObjectRequest } from "@aws-sdk/client-s3";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
-import { Callback, Context, DynamoDBBatchItemFailure, DynamoDBBatchResponse, Handler } from "aws-lambda";
+import { Callback, Context, Handler, SQSBatchItemFailure, SQSBatchResponse } from "aws-lambda";
 import { ERRORS } from "../assets/enum";
 import { ActivitiesService } from "../services/ActivitiesService";
 import { LambdaService } from "../services/LambdaService";
@@ -16,12 +15,12 @@ import { ActivitySchema } from "@dvsa/cvs-type-definitions/types/v1/activity";
  * @param context - λ Context
  * @param callback - callback function
  */
-const reportGen: Handler = async (event: any, context?: Context, callback?: Callback): Promise<DynamoDBBatchResponse> => {
+const reportGen: Handler = async (event: any, context?: Context, callback?: Callback): Promise<SQSBatchResponse> => {
   if (!event || !event.Records || !Array.isArray(event.Records) || !event.Records.length) {
     console.error("ERROR: event is not defined.");
     throw new Error(ERRORS.EVENT_IS_EMPTY);
   }
-  const batchItemFailures: DynamoDBBatchItemFailure[] = [];
+  const batchItemFailures: SQSBatchItemFailure[] = [];
 
   const lambdaService = new LambdaService(new LambdaClient({}));
   const reportService: ReportGenerationService = new ReportGenerationService(new TestResultsService(lambdaService), new ActivitiesService(lambdaService));
@@ -45,7 +44,7 @@ const reportGen: Handler = async (event: any, context?: Context, callback?: Call
     } catch (error) {
       console.error(error);
       batchItemFailures.push({
-        itemIdentifier: record.dynamodb?.SequenceNumber ?? "",
+        itemIdentifier: record.messageId,
       });
     }
   }
