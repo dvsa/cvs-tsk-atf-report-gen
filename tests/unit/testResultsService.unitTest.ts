@@ -6,6 +6,7 @@ import { HTTPError } from "../../src/models/HTTPError";
 import { LambdaService } from "../../src/services/LambdaService";
 import { wrapLambdaErrorResponse, wrapLambdaResponse } from "../util/responseUtils";
 import mockConfig from "../util/mockConfig";
+import { toUint8Array } from "@smithy/util-utf8";
 
 describe("TestResultsService", () => {
   mockConfig();
@@ -21,7 +22,7 @@ describe("TestResultsService", () => {
               numberOfSeats: 45,
               testStartTimestamp: "2019-01-14T10:36:33.987Z",
               testEndTimestamp: "2019-01-14T10:36:33.987Z",
-              testTypes: {
+              testTypes: [{
                 prohibitionIssued: false,
                 testCode: "aas",
                 testNumber: "1",
@@ -70,7 +71,7 @@ describe("TestResultsService", () => {
                 name: "Annual test",
                 certificateLink: "http://dvsagov.co.uk",
                 testResult: "pass",
-              },
+              }],
               vin: "XMGDE02FS0H012345",
             },
           ];
@@ -127,12 +128,13 @@ describe("TestResultsService", () => {
         });
       });
 
+      // FAIL HERE
       context("and the response is non-200", () => {
         it("should throw an error", () => {
           const mockLambdaService = jest.fn().mockImplementation(() => {
             return {
               invoke: () => {
-                return Promise.resolve(wrapLambdaErrorResponse(404, testResults404));
+                return Promise.resolve(wrapLambdaErrorResponse(404, toUint8Array(JSON.stringify(testResults404))));
               },
               validateInvocationResponse: LambdaService.prototype.validateInvocationResponse,
             };
