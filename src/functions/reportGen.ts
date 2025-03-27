@@ -1,53 +1,51 @@
-import { processRecord } from "@dvsa/cvs-microservice-common/functions/sqsFilter";
-import { Callback, Context, Handler } from "aws-lambda";
-import { AWSError, Lambda } from "aws-sdk";
-import { ManagedUpload } from "aws-sdk/clients/s3";
+import { LambdaClient } from "@aws-sdk/client-lambda";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
+import { Callback, Context, Handler, SQSBatchItemFailure, SQSBatchResponse, SQSEvent } from "aws-lambda";
 import { ERRORS } from "../assets/enum";
 import { ActivitiesService } from "../services/ActivitiesService";
 import { LambdaService } from "../services/LambdaService";
 import { ReportGenerationService } from "../services/ReportGenerationService";
 import { SendATFReport } from "../services/SendATFReport";
 import { TestResultsService } from "../services/TestResultsService";
+import { ActivitySchema } from "@dvsa/cvs-type-definitions/types/v1/activity";
 
 /**
- * λ function to process a DynamoDB stream of test results into a queue for certificate generation.
- * @param event - DynamoDB Stream event
+ * λ function to process a SQS of test results into a queue for certificate generation.
+ * @param event - SQS event
  * @param context - λ Context
  * @param callback - callback function
  */
-const reportGen: Handler = async (event: any, context?: Context, callback?: Callback): Promise<void | ManagedUpload.SendData[]> => {
+const reportGen: Handler = async (event: SQSEvent, context?: Context, callback?: Callback): Promise<SQSBatchResponse> => {
   if (!event || !event.Records || !Array.isArray(event.Records) || !event.Records.length) {
     console.error("ERROR: event is not defined.");
     throw new Error(ERRORS.EVENT_IS_EMPTY);
   }
-  const lambdaService = new LambdaService(new Lambda());
-  const reportService: ReportGenerationService = new ReportGenerationService(new TestResultsService(lambdaService), new ActivitiesService(lambdaService));
-  const atfReportPromises: Array<Promise<ManagedUpload.SendData>> = [];
+  const batchItemFailures: SQSBatchItemFailure[] = [];
 
+  const lambdaService = new LambdaService(new LambdaClient({}));
+  const reportService: ReportGenerationService = new ReportGenerationService(new TestResultsService(lambdaService), new ActivitiesService(lambdaService));
   const sendATFReport: SendATFReport = new SendATFReport();
 
-  event.Records.forEach((record: any) => {
-    const recordBody =JSON.parse(JSON.parse(record.body).Message);
-    const visit: any = processRecord(recordBody);
-    if (visit) {
-      const atfReportPromise = reportService
-        .generateATFReport(visit)
-        .then((generationServiceResponse) => {
-          return sendATFReport.sendATFReport(generationServiceResponse, visit);
-        })
-        .catch((error: any) => {
-          console.log(error);
-          throw error;
-        });
+  console.debug("Services injected, looping over sqs events");
+  for (const record of event.Records) {
+    try {
+      const recordBody = JSON.parse(record?.body);
+      const visit: ActivitySchema = unmarshall(recordBody?.dynamodb.NewImage) as ActivitySchema;
 
-      atfReportPromises.push(atfReportPromise);
+      console.debug(`visit is: ${JSON.stringify(visit.id)}`);
+
+      if (visit) {
+        const generationServiceResponse = await reportService.generateATFReport(visit);
+        console.debug(`Report generated: ${JSON.stringify(generationServiceResponse)}`);
+        await sendATFReport.sendATFReport(generationServiceResponse, visit);
+      }
+
+    } catch (error) {
+      console.error(error);
+      batchItemFailures.push({ itemIdentifier: record.messageId });
     }
-  });
-
-  return Promise.all(atfReportPromises).catch((error: AWSError) => {
-    console.error(error);
-    throw error;
-  });
+  }
+  return { batchItemFailures };
 };
 
 export { reportGen };
