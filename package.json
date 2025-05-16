@@ -86,5 +86,8 @@
       "pre-commit": "npm run security-checks && npm run audit && npm run lint",
       "pre-push": "npm run prepush"
     }
+  },
+  "overrides": {
+    "hapi-plugin-websocket": "2.4.8"
   }
 }
