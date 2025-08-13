@@ -1,9 +1,11 @@
-import { IInvokeConfig } from "../models";
-import { PromiseResult } from "aws-sdk/lib/request";
-import { AWSError, Lambda } from "aws-sdk";
-import { LambdaService } from "./LambdaService";
-import { Configuration } from "../utils/Configuration";
+import { InvocationRequest, InvocationResponse } from "@aws-sdk/client-lambda";
+import { toUint8Array } from "@smithy/util-utf8";
 import moment from "moment";
+import { IInvokeConfig } from "../models";
+import { Configuration } from "../utils/Configuration";
+import { LambdaService } from "./LambdaService";
+import { TestResultSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result";
+import { TestResultTestTypeSchema } from "@dvsa/cvs-type-definitions/types/v1/test-result-test-type";
 
 class TestResultsService {
   private readonly lambdaClient: LambdaService;
@@ -18,23 +20,27 @@ class TestResultsService {
    * Retrieves test results based on the provided parameters
    * @param params - getTestResultsByTesterStaffId query parameters
    */
-  public getTestResults(params: any): Promise<any> {
+  public getTestResults(params: any): Promise<TestResultSchema[]> {
+    console.debug(`inside get test results: ${JSON.stringify(params)}`);
     const config: IInvokeConfig = this.config.getInvokeConfig();
-    const invokeParams: any = {
+    const invokeParams: InvocationRequest = {
       FunctionName: config.functions.testResults.name,
       InvocationType: "RequestResponse",
       LogType: "Tail",
-      Payload: JSON.stringify({
-        httpMethod: "GET",
-        path: "/test-results/getTestResultsByTesterStaffId",
-        queryStringParameters: params,
-      }),
+      Payload: toUint8Array(
+        JSON.stringify({
+          httpMethod: "GET",
+          path: "/test-results/getTestResultsByTesterStaffId",
+          queryStringParameters: params,
+        })
+      ),
     };
 
-    return this.lambdaClient.invoke(invokeParams).then((response: PromiseResult<Lambda.Types.InvocationResponse, AWSError>) => {
+    return this.lambdaClient.invoke(invokeParams).then((response: InvocationResponse) => {
       const payload: any = this.lambdaClient.validateInvocationResponse(response); // Response validation
-      const testResults: any[] = JSON.parse(payload.body); // Response conversion
+      const testResults: TestResultSchema[] = JSON.parse(payload.body); // Response conversion
 
+      console.debug(`test result response is: ${JSON.stringify(testResults)}`);
       // Sort results by testTypeEndTimeStamp
       testResults.sort((first: any, second: any): number => {
         if (moment(first.testTypes[0].testTypeEndTimeStamp).isBefore(second.testTypes[0].testTypeEndTimeStamp)) {
@@ -57,17 +63,18 @@ class TestResultsService {
    * into multiple records with a single test type
    * @param testResults
    */
-  public expandTestResults(testResults: any): any[] {
+  public expandTestResults(testResults: TestResultSchema[]): TestResultSchema[] {
+    console.debug("Splitting test results into multiple records");
     return testResults
-      .map((testResult: any) => {
+      .map((testResult: TestResultSchema) => {
         // Separate each test type in a record to form multiple test results
-        const splittedRecords: any[] = [];
-        const templateRecord: any = Object.assign({}, testResult);
+        const splittedRecords: TestResultSchema[] = [];
+        const templateRecord: TestResultSchema = Object.assign({}, testResult);
         Object.assign(templateRecord, {});
 
-        testResult.testTypes.forEach((testType: any, i: number, array: any[]) => {
-          const clonedRecord: any = Object.assign({}, templateRecord); // Create test result from template
-          Object.assign(clonedRecord, { testTypes: testType }); // Assign it the test type
+        testResult.testTypes.forEach((testType: TestResultTestTypeSchema, i: number, array: any[]) => {
+          const clonedRecord: TestResultSchema = Object.assign({}, templateRecord); // Create test result from template
+          Object.assign(clonedRecord, { testTypes: [testType] }); // Assign it the test type
 
           splittedRecords.push(clonedRecord);
         });
